@@ -33,7 +33,13 @@
     "url": "https://github.com/jruipinto/modemjs/issues"
   },
   "homepage": "https://github.com/jruipinto/modemjs#readme",
+  "dependencies": {
+    "ramda": "^0.26.1",
+    "serialport": "^8.0.5"
+  },
   "devDependencies": {
+    "@types/node": "^13.1.0",
+    "@types/ramda": "^0.26.38",
     "@types/serialport": "^7.0.4",
     "prettier": "^1.19.1",
     "tslint": "^5.20.1",
@@ -42,11 +48,5 @@
   },
   "files": [
     "lib/**/*"
-  ],
-  "dependencies": {
-    "@types/node": "^13.1.0",
-    "@types/ramda": "^0.26.38",
-    "ramda": "^0.26.1",
-    "serialport": "^8.0.5"
-  }
+  ]
 }
