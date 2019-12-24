@@ -35,6 +35,7 @@
   "homepage": "https://github.com/jruipinto/modemjs#readme",
   "dependencies": {
     "ramda": "^0.26.1",
+    "rxjs": "^6.5.3",
     "serialport": "^8.0.5"
   },
   "devDependencies": {
