@@ -43,6 +43,7 @@
     "lib/**/*"
   ],
   "dependencies": {
+    "@types/node": "^13.1.0",
     "@types/ramda": "^0.26.38",
     "ramda": "^0.26.1",
     "serialport": "^8.0.5"
