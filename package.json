@@ -43,6 +43,7 @@
     "lib/**/*"
   ],
   "dependencies": {
+    "ramda": "^0.26.1",
     "serialport": "^8.0.5"
   }
 }
