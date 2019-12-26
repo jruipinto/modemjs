@@ -60,13 +60,12 @@ class HomeSplash extends React.Component {
 
     return (
       <SplashContainer>
-        <Logo img_src={`${baseUrl}img/undraw_monitor.svg`} />
+        <Logo img_src={`${baseUrl}img/undraw_chat_bot_kli5.svg`} />
         <div className="inner">
           <ProjectTitle siteConfig={siteConfig} />
           <PromoSection>
-            <Button href="#try">Try It Out</Button>
-            <Button href={docUrl('doc1.html')}>Example Link</Button>
-            <Button href={docUrl('doc2.html')}>Example Link 2</Button>
+            <Button href="#try">Quick start</Button>
+            <Button href={docUrl('doc1.html')}>Learn more</Button>
           </PromoSection>
         </div>
       </SplashContainer>
@@ -96,8 +95,10 @@ class Index extends React.Component {
       <div
         className="productShowcaseSection paddingBottom"
         style={{textAlign: 'center'}}>
-        <h2>Feature Callout</h2>
-        <MarkdownBlock>These are features of this project</MarkdownBlock>
+        <h2>Ultra simple</h2>
+        <MarkdownBlock>
+          Send or receive SMS with few lines of code.
+        </MarkdownBlock>
       </div>
     );
 
@@ -136,10 +137,10 @@ class Index extends React.Component {
         {[
           {
             content:
-              'Each new Docusaurus project has **randomly-generated** theme colors.',
+              'Modem.js docs are made with simplicity in mind so that you can get started quickly and focus on building your app.',
             image: `${baseUrl}img/undraw_youtube_tutorial.svg`,
             imageAlign: 'right',
-            title: 'Randomly Generated Theme Colors',
+            title: 'Get started',
           },
         ]}
       </Block>
@@ -149,17 +150,41 @@ class Index extends React.Component {
       <Block layout="fourColumn">
         {[
           {
-            content: 'This is the content of my feature',
-            image: `${baseUrl}img/undraw_react.svg`,
+            content: 'Send SMS easily',
+            image: `${baseUrl}img/undraw_server_push_vtms.svg`,
             imageAlign: 'top',
-            title: 'Feature One',
+            title: 'Send',
           },
           {
-            content: 'The content of my second feature',
-            image: `${baseUrl}img/undraw_operating_system.svg`,
+            content: 'Be notified when that SMS arrives the recipient',
+            image: `${baseUrl}img/undraw_message_sent_1030.svg`,
             imageAlign: 'top',
-            title: 'Feature Two',
+            title: 'Delivery report',
           },
+          {
+            content: 'Be notified if the recipient isn\'t available',
+            image: `${baseUrl}img/undraw_Taken_if77.svg`,
+            imageAlign: 'top',
+            title: 'Recipient unavailable report',
+          },
+          {
+            content: 'If the recipient isn\'t available, you\'ll get notified again if SMS get\'s delivered in a period of 24 hours',
+            image: `${baseUrl}img/undraw_arrived_f58d.svg`,
+            imageAlign: 'top',
+            title: '24 Hours valid',
+          },
+          {
+            content: 'Receive SMS from anyone',
+            image: `${baseUrl}img/undraw_popular_7nrh.svg`,
+            imageAlign: 'top',
+            title: 'Receive SMS',
+          },
+          {
+            content: 'Use the power of observables to handle the delivery reports and the received SMSs',
+            image: `${baseUrl}img/undraw_logistics_x4dc.svg`,
+            imageAlign: 'top',
+            title: 'RXJS powered',
+          }
         ]}
       </Block>
     );
@@ -200,9 +225,6 @@ class Index extends React.Component {
           <Features />
           <FeatureCallout />
           <LearnHow />
-          <TryOut />
-          <Description />
-          <Showcase />
         </div>
       </div>
     );
