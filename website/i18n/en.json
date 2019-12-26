@@ -20,6 +20,22 @@
       },
       "doc5": {
         "title": "Fifth Document"
+      },
+      "installation": {
+        "title": "Installation",
+        "sidebar_label": "Installation"
+      },
+      "prerequisites": {
+        "title": "Prerequisites",
+        "sidebar_label": "Prerequisites"
+      },
+      "quickstart": {
+        "title": "Quickstart",
+        "sidebar_label": "Quickstart"
+      },
+      "supported-environments": {
+        "title": "Supported Environments",
+        "sidebar_label": "Supported Environments"
       }
     },
     "links": {
@@ -28,9 +44,10 @@
       "Help": "Help"
     },
     "categories": {
-      "Docusaurus": "Docusaurus",
-      "First Category": "First Category",
-      "Second Category": "Second Category"
+      "Getting Started": "Getting Started",
+      "Usage": "Usage",
+      "API": "API",
+      "First Category": "First Category"
     }
   },
   "pages-strings": {
