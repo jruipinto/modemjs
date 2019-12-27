@@ -23,15 +23,15 @@ const users = [
 const siteConfig = {
   title: 'Modem.JS', // Title for your website.
   tagline: 'SMS messages on Node.js',
-  url: 'https://your-docusaurus-test-site.com', // Your website URL
-  baseUrl: '/', // Base URL for your project */
+  url: 'https://jruipinto/github.com', // Your website URL
+  baseUrl: '/modemjs/', // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
   //   baseUrl: '/test-site/',
 
   // Used for publishing and more
-  projectName: 'test-site',
-  organizationName: 'facebook',
+  projectName: 'modemjs',
+  organizationName: 'jruipinto',
   // For top-level user or org sites, the organization is still the same.
   // e.g., for the https://JoelMarcey.github.io site, it would be set like...
   //   organizationName: 'JoelMarcey'
@@ -105,6 +105,8 @@ const siteConfig = {
   // You may provide arbitrary config keys to be used as needed by your
   // template. For example, if you need your repo's URL...
   //   repoUrl: 'https://github.com/facebook/test-site',
+
+  customDocsPath: 'website/docs'
 };
 
 module.exports = siteConfig;
