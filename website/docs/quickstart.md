@@ -14,7 +14,7 @@ Example of minimal code to receive and send SMS with your node app / bot 🤖
 
 ```javascript
 // import { Modem } from 'modemjs'; // if you use typescript with nodejs
-const Modem = require('modemjs').Modem; // if you prefer usingthe standard nodejs style javascript
+const Modem = require('modemjs').Modem; // if you prefer to use the standard nodejs style javascript
 
 const modem = new Modem({
     port: 'COM10', // change this 
@@ -27,7 +27,7 @@ const modem = new Modem({
 });
 // this config is necessary but will be simplified soon, in the next updates of modem.js
 // PS: the msPause of 10000ms is recommended by now to avoid
-//  missed delivery reports but are free to try smaller periods
+//  missed delivery reports but you are free to try smaller periods
 
 modem.onReceivedSMS().subscribe(sms => console.log('SMS Received:', sms));
 // this observable will log every SMS that your modem receives
