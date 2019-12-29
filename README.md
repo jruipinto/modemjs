@@ -53,8 +53,9 @@ Later, I may test Modem.js with other phones / gsm modems and make a list of sup
 
 Example of minimal code to receive and send SMS with your node app / bot 🤖
 
-```typescript
-import { Modem } from 'modemjs';
+```javascript
+// import { Modem } from 'modemjs'; // if you use typescript with nodejs
+const Modem = require('modemjs').Modem; // if you prefer to use the standard nodejs' style javascript
 
 const modem = new Modem({
     port: 'COM10', // change this 
@@ -65,7 +66,7 @@ const modem = new Modem({
     debugMode: true,
     initCommands: [
         '\u241bAT', 'AT+CMGF=1', 'AT+CNMI=1,1,0,1,0',
-        'AT+CNMI=2', 'AT+CSMP=49,167,0,0', 'AT+CPMS=\'SM\',\'SM\',\'SM\''
+        'AT+CNMI=2', 'AT+CSMP=49,167,0,0', 'AT+CPMS=\"SM\",\"SM\",\"SM\"'
     ],
     msPause: 10000
 });
@@ -77,7 +78,7 @@ modem.onReceivedSMS().subscribe(sms => console.log('SMS Received:', sms));
 // this observable will log every SMS that your modem receives
 
 modem.sendSMS({ phoneNumber: 910000000, text: 'Hi! I\'m a robot!' })
-     .subscribe(data => console.log('Message delivered! Here is the report:', data));
+    .subscribe(data => console.log('Message delivered! Here is the report:', data));
 // this funtion will send 'Hi! I\'m a robot!' to '910000000' as a text message / SMS and when
 //  the message gets delivered to the recipient, the delivery report will be logged
 
