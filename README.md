@@ -54,16 +54,16 @@ Later, I may test Modem.js with other phones / gsm modems and make a list of sup
 Example of minimal code to receive and send SMS with your node app / bot 🤖
 
 ```javascript
+// this example app is actually tested by me. So it MUST work if 
+//  you use a valid phone number as recipient and the same gsm modem as me
+
+
 // import { Modem } from 'modemjs'; // if you use typescript with nodejs
 const Modem = require('modemjs').Modem; // if you prefer to use the standard nodejs' style javascript
 
 const modem = new Modem({
     port: 'COM10', // change this 
     baudRate: 230400, // change this
-    pin: null,
-    smsMode: true,
-    extendedErrorReports: true,
-    debugMode: false,
     initCommands: [
         '\u241bAT', 'AT+CMGF=1', 'AT+CNMI=1,1,0,1,0',
         'AT+CNMI=2', 'AT+CSMP=49,167,0,0', 'AT+CPMS=\"SM\",\"SM\",\"SM\"'
