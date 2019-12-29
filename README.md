@@ -63,7 +63,7 @@ const modem = new Modem({
     pin: null,
     smsMode: true,
     extendedErrorReports: true,
-    debugMode: true,
+    debugMode: false,
     initCommands: [
         '\u241bAT', 'AT+CMGF=1', 'AT+CNMI=1,1,0,1,0',
         'AT+CNMI=2', 'AT+CSMP=49,167,0,0', 'AT+CPMS=\"SM\",\"SM\",\"SM\"'
