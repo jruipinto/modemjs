@@ -1,10 +1,10 @@
 {
   "docs": {
-    "Getting Started": ["supported-environments", "prerequisites", "installation", "quickstart"],
-    "Usage": ["doc2"],
-    "API": ["doc3"]
+    "Getting Started": ["introduction","supported-environments", "skills-needed", "prerequisites", "installation"],
+    "Usage": ["quickstart"],
+    "API": ["docs-under-construction"]
   },
   "docs-other": {
-    "First Category": ["doc4", "doc5"]
+    "First Category": ["docs-under-construction", "docs-under-construction"]
   }
 }

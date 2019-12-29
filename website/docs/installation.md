@@ -4,8 +4,20 @@ title: Installation
 sidebar_label: Installation
 ---
 
-## Installation Instructions
+## Install
 
 ```
 npm i modemjs
+```
+
+## Import to your node app
+
+```javascript
+const Modem = require('modemjs').Modem;
+```
+
+or, if you use typescript (recommended)
+
+```typescript
+import { Modem } from 'modemjs';
 ```

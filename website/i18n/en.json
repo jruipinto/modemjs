@@ -5,25 +5,17 @@
     "previous": "Previous",
     "tagline": "SMS messages on Node.js",
     "docs": {
-      "doc1": {
-        "title": "Latin-ish",
-        "sidebar_label": "Example Page"
-      },
-      "doc2": {
-        "title": "document number 2"
-      },
-      "doc3": {
-        "title": "This is document number 3"
-      },
-      "doc4": {
-        "title": "Other Document"
-      },
-      "doc5": {
-        "title": "Fifth Document"
+      "docs-under-construction": {
+        "title": "Under Construction",
+        "sidebar_label": "Under Construction 👷‍♂️"
       },
       "installation": {
         "title": "Installation",
         "sidebar_label": "Installation"
+      },
+      "introduction": {
+        "title": "Introduction",
+        "sidebar_label": "Introduction"
       },
       "prerequisites": {
         "title": "Prerequisites",
@@ -32,6 +24,10 @@
       "quickstart": {
         "title": "Quickstart",
         "sidebar_label": "Quickstart"
+      },
+      "skills-needed": {
+        "title": "Skills Needed",
+        "sidebar_label": "Skills Needed"
       },
       "supported-environments": {
         "title": "Supported Environments",
