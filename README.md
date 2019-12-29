@@ -51,14 +51,14 @@ Later, I may test Modem.js with other phones / gsm modems and make a list of sup
 
 ##### Usage
 
-Minimal code to receive and send SMS with your node app / bot 🤖
+Example of minimal code to receive and send SMS with your node app / bot 🤖
 
 ```typescript
 import { Modem } from 'modemjs';
 
 const modem = new Modem({
-    port: 'COM10',
-    baudRate: 230400,
+    port: 'COM10', // change this 
+    baudRate: 230400, // change this
     pin: null,
     smsMode: true,
     extendedErrorReports: true,
@@ -82,4 +82,3 @@ modem.sendSMS({ phoneNumber: 910000000, text: 'Hi! I\'m a robot!' })
 //  the message gets delivered to the recipient, the delivery report will be logged
 
 ```
-
