@@ -1,13 +1,12 @@
 const srcPath = './build/modemjs';
-const dstPath = '../';
+const dstPath = '../../modemjs';
 
 
 const fs = require('fs-extra');
 
-
-fs.move(srcPath, dstPath, { overwrite: true })
+fs.copy(srcPath, dstPath, { overwrite: true })
     .then(() => {
-        console.log(`Moved files in ${srcPath} to ${dstPath} folder successfully.`);
+        console.log(`Copied files in ${srcPath} to ${dstPath} folder successfully.`);
         fs.remove('./build')
             .then(() => {
                 console.log(`Removed build folder successfully.`)
