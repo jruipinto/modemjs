@@ -1,1 +1,1 @@
-export * from './modem'
+export * from './modem';
