@@ -1,12 +1,14 @@
-import { Subject, BehaviorSubject, Observable } from 'rxjs';
-import { tap, filter, concatMap, map, takeWhile } from 'rxjs/operators';
 import { clone } from 'ramda';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { concatMap, filter, map, takeWhile, tap } from 'rxjs/operators';
 import SerialPort from 'serialport';
-import { ModemTask, ModemConfig, SMS, DeliveredSMSReport, ReceivedSMS } from './models';
+import { DeliveredSMSReport, ModemConfig, ModemTask, ReceivedSMS, SMS } from './models';
+// tslint:disable-next-line: no-var-requires
 const Readline = require('@serialport/parser-readline');
 
 const handleError = (err: any) => {
     if (err) {
+        // tslint:disable-next-line: no-console
         console.log(err.message);
     }
 };
@@ -20,8 +22,8 @@ export class Modem {
 
     private port: SerialPort;
     private status = {
-        error: false,
-        debugMode: false
+        debugMode: false,
+        error: false
     }
     private msPause: number;
 
@@ -41,6 +43,7 @@ export class Modem {
         this.error$.pipe(
             tap(err => {
                 this.status.error = true;
+                // tslint:disable-next-line: no-console
                 console.log('Modem error:', err);
             })
         ).subscribe();
@@ -66,7 +69,9 @@ export class Modem {
             }),
             tap(receivedData => {
                 if (this.status.debugMode) {
+                    // tslint:disable-next-line: no-console
                     console.log('\r\n\r\n------------------modem says-------------------------');
+                    // tslint:disable-next-line: no-console
                     console.log(
                         receivedData
                             .replace('\r', '<CR>')
@@ -74,6 +79,7 @@ export class Modem {
                             .replace('\x1b', '<ESC>')
                             .replace('\x1A', '<CTRL-Z>')
                     );
+                    // tslint:disable-next-line: no-console
                     console.log('\r\n');
                 }
             }),
@@ -106,11 +112,11 @@ export class Modem {
         // init modem
         modemCfg.initCommands.forEach(command => {
             this.addTask({
-                id: this.generateTaskID(),
                 description: command,
-                fn: () => this.port.write(`${command}\r`, handleError),
                 expectedResult: 'OK',
-                onResultFn: (x) => { }
+                fn: () => this.port.write(`${command}\r`, handleError),
+                id: this.generateTaskID(),
+                onResultFn: (x) => null
             });
         });
 
@@ -118,48 +124,26 @@ export class Modem {
 
     }
 
-    private addTask(task: ModemTask) {
-        this.taskStack = [...this.taskStack, task];
-    }
-
-    private generateTaskID() {
-        this.tasksCounter = this.tasksCounter + 1;
-        return this.tasksCounter;
-
-    }
-
-    private nextTask() {
-        if (this.taskInExecution) {
-            return;
-        }
-        if (!this.taskStack[0]) {
-            return
-        }
-        this.taskInExecution = clone(this.taskStack[0]);
-        this.taskStack = clone(this.taskStack.slice(1));
-        this.taskInExecution.fn();
-    }
-
-    sendSMS({ phoneNumber, text }: SMS): Observable<DeliveredSMSReport> {
+    public sendSMS({ phoneNumber, text }: SMS): Observable<DeliveredSMSReport> {
         const smsInfo$: BehaviorSubject<any> = new BehaviorSubject(null);
         let cmgsNumber: number;
 
         this.addTask({
-            id: this.generateTaskID(),
             description: `AT+CMGS="${phoneNumber}"`,
+            expectedResult: 'notImportant',
             fn: () => {
                 setTimeout(() => {
                     this.port.write(`AT+CMGS="${phoneNumber}"\r`, handleError);
                 }, this.msPause);
             },
-            expectedResult: 'notImportant',
-            onResultFn: (x) => { }
+            id: this.generateTaskID(),
+            onResultFn: (x) => null
         });
         this.addTask({
-            id: this.generateTaskID(),
             description: `${text}\x1A`,
-            fn: () => this.port.write(`${text}\x1A`, handleError),
             expectedResult: '+CMGS:',
+            fn: () => this.port.write(`${text}\x1A`, handleError),
+            id: this.generateTaskID(),
             onResultFn: (receivedData) => {
                 smsInfo$.next(receivedData);
             }
@@ -173,7 +157,7 @@ export class Modem {
             tap(data => { cmgsNumber = parseInt(data.split(':')[1], 10); }),
             concatMap(() => this.data$),
             filter(data => data.includes('+CDS:')),
-            filter(data => parseInt(data.split(',')[1]) === cmgsNumber),
+            filter(data => parseInt(data.split(',')[1], 10) === cmgsNumber),
 
             // convert +CDS string to DeliveredSMSReport object
             map(data => {
@@ -186,12 +170,12 @@ export class Modem {
                 // cds = '6,238,910138725,129,19-12-21,00:04:39+00,19-12-21,00:04:41+00,0'
                 const today = new Date;
                 const report: DeliveredSMSReport = {
-                    firstOctet: ~~cds[0],
-                    id: ~~cds[1],
-                    phoneNumber: ~~cds[2],
-                    submitTime: new Date(today.getFullYear() + cds[4].slice(2) + 'T' + cds[5].replace('+', '.000+') + ':00'),
                     deliveryTime: new Date(today.getFullYear() + cds[6].slice(2) + 'T' + cds[7].replace('+', '.000+') + ':00'),
-                    st: ~~cds[8]
+                    firstOctet: +cds[0],
+                    id: +cds[1],
+                    phoneNumber: +cds[2],
+                    st: +cds[8],
+                    submitTime: new Date(today.getFullYear() + cds[4].slice(2) + 'T' + cds[5].replace('+', '.000+') + ':00')
                 };
                 // report = { firstOctet: 6, id: 238, phoneNumber: 910138725, submitTime: "2019-12-21T00:04:39.000Z", deliveryTime: "2019-12-21T00:04:41.000Z", 0 }
                 return report;
@@ -200,7 +184,7 @@ export class Modem {
         );
     }
 
-    onReceivedSMS(): Observable<ReceivedSMS> {
+    public onReceivedSMS(): Observable<ReceivedSMS> {
         let readingSMS: boolean = false;
         let newSMS: ReceivedSMS = {
             id: 0,
@@ -211,13 +195,13 @@ export class Modem {
         return this.data$.pipe(
             tap(data => {
                 if (data.includes('+CMTI:')) {
-                    newSMS.id = ~~data.split(',')[1]
+                    newSMS.id = +data.split(',')[1]
                     this.addTask({
-                        id: this.generateTaskID(),
-                        description: `AT+CMGR=${~~data.split(',')[1]}`,
-                        fn: () => this.port.write(`AT+CMGR=${~~data.split(',')[1]}\r`, handleError),
+                        description: `AT+CMGR=${+data.split(',')[1]}`,
                         expectedResult: '+CMGR:',
-                        onResultFn: (x) => { }
+                        fn: () => this.port.write(`AT+CMGR=${+data.split(',')[1]}\r`, handleError),
+                        id: this.generateTaskID(),
+                        onResultFn: (x) => null
                     });
                     this.nextTask();
                 }
@@ -243,7 +227,7 @@ export class Modem {
                         .replace(/\"/gi, "")
                         .replace(/\//gi, "-")
                         .split(",");;
-                    newSMS.phoneNumber = ~~cmgr[1].replace('+', '00').replace(/00351/, '');
+                    newSMS.phoneNumber = +cmgr[1].replace('+', '00').replace(/00351/, '');
                     newSMS.submitTime = new Date(today.getFullYear() + cmgr[3].slice(2) + 'T' + cmgr[4].replace('+', '.000+') + ':00');
                     return null;
                 }
@@ -261,15 +245,37 @@ export class Modem {
             }),
             tap(({ id }) => {
                 this.addTask({
-                    id: this.generateTaskID(),
                     description: `AT+CMGD=${id}`,
-                    fn: () => this.port.write(`AT+CMGD=${id}\r`, handleError),
                     expectedResult: 'OK',
-                    onResultFn: (x) => { }
+                    fn: () => this.port.write(`AT+CMGD=${id}\r`, handleError),
+                    id: this.generateTaskID(),
+                    onResultFn: (x) => null
                 });
                 this.nextTask();
             })
         );
+    }
+
+    private addTask(task: ModemTask) {
+        this.taskStack = [...this.taskStack, task];
+    }
+
+    private generateTaskID() {
+        this.tasksCounter = this.tasksCounter + 1;
+        return this.tasksCounter;
+
+    }
+
+    private nextTask() {
+        if (this.taskInExecution) {
+            return;
+        }
+        if (!this.taskStack[0]) {
+            return
+        }
+        this.taskInExecution = clone(this.taskStack[0]);
+        this.taskStack = clone(this.taskStack.slice(1));
+        this.taskInExecution.fn();
     }
 
 }
