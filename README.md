@@ -1,4 +1,4 @@
-<img src="https://github.com/jruipinto/modemjs/blob/master/docs/img/modemjs_logo_gray.svg" alt="Logo" width="60"/>
+<img src="https://jruipinto.github.io/modemjs/img/modemjs_logo_gray.svg" alt="Logo" width="60"/>
 
 
 
