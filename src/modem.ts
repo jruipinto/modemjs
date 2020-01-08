@@ -29,7 +29,7 @@ export class Modem {
   private data$: Subject<string> = new Subject();
   private error$: Subject<string> = new Subject();
 
-  constructor(modemCfg: ModemConfig, errorCallback?: ((err: any) => void)) {
+  constructor(modemCfg: ModemConfig, errorCallback?: (err: any) => void) {
     this.port = new SerialPort(modemCfg.port, { baudRate: modemCfg.baudRate }, errorCallback);
     this.status.debugMode = modemCfg.debugMode ? true : false;
     this.msPause = modemCfg.msPause;
