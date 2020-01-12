@@ -14,6 +14,7 @@ const defaultModemInitCommands = [
 ]
 
 export class Modem {
+  public log$: Subject<string> = new Subject();
 
   private currentTask: ModemTask | null = null;
   private taskStack: ModemTask[] = [];
@@ -50,70 +51,70 @@ export class Modem {
         this.data$.next(clone(receivedData));
       }
     });
-    this.data$
-      .pipe(
-        tap(receivedData => {
-          if (receivedData.includes('ERROR')) {
-            this.error$.next(receivedData);
-          }
-        }),
-        tap(receivedData => {
-          if (this.status.debugMode) {
-            // tslint:disable-next-line: no-console
-            console.log('\r\n\r\n------------------modem says-------------------------');
-            // tslint:disable-next-line: no-console
-            console.log(
-              receivedData
-                .replace('\r', '<CR>')
-                .replace('\n', '<LF>')
-                .replace('\x1b', '<ESC>')
-                .replace('\x1A', '<CTRL-Z>'),
-            );
-            // tslint:disable-next-line: no-console
-            console.log('\r\n');
-          }
-        }),
-        // verify modem answer, remove currentTask and start nextTaskExecute()
-        tap(receivedData => {
-          if (!this.currentTask && !this.taskStack) {
-            return;
-          }
-          if (!this.currentTask && this.taskStack) {
-            return;
-          }
-          if (this.currentTask && !this.taskStack) {
-            if (receivedData.includes(this.currentTask.expectedResult)) {
-              this.currentTask.onResultFn(receivedData);
-              this.currentTask = null;
-            }
-            return;
-          }
-          if (this.currentTask && this.taskStack) {
-            if (receivedData.includes(this.currentTask.expectedResult)) {
-              this.currentTask.onResultFn(receivedData);
-              this.currentTask = null;
-              this.nextTaskExecute();
-            }
-            return;
-          }
-        }),
-      )
-      .subscribe();
+    this.data$.pipe(
+      // logs receivedData from modem
+      tap(receivedData => this.log$.next(receivedData)),
 
-    this.port.on('error', err => {
-      if (err) {
-        this.error$.next(clone(err));
-      }
-    });
-    this.error$
-      .pipe(
-        tap(err => {
-          this.status.error = true;
+      tap(receivedData => {
+        if (receivedData.includes('ERROR')) {
+          this.error$.next(receivedData);
+        }
+      }),
+
+      tap(receivedData => {
+        if (this.status.debugMode) {
           // tslint:disable-next-line: no-console
-          console.log('Modem error:', err);
-        }),
-      )
-      .subscribe();
+          console.log('\r\n\r\n------------------modem says-------------------------');
+          // tslint:disable-next-line: no-console
+          console.log(
+            receivedData
+              .replace('\r', '<CR>')
+              .replace('\n', '<LF>')
+              .replace('\x1b', '<ESC>')
+              .replace('\x1A', '<CTRL-Z>')
+          );
+          // tslint:disable-next-line: no-console
+          console.log('\r\n');
+        }
+      }),
+
+      // verify modem answer, remove currentTask and start nextTaskExecute()
+      tap(receivedData => {
+        if (!this.currentTask && !this.taskStack) {
+          return;
+        }
+        if (!this.currentTask && this.taskStack) {
+          return;
+        }
+        if (this.currentTask && !this.taskStack) {
+          if (receivedData.includes(this.currentTask.expectedResult)) {
+            this.currentTask.onResultFn(receivedData);
+            this.currentTask = null;
+          }
+          return;
+        }
+        if (this.currentTask && this.taskStack) {
+          if (receivedData.includes(this.currentTask.expectedResult)) {
+            this.currentTask.onResultFn(receivedData);
+            this.currentTask = null;
+            this.nextTaskExecute();
+          }
+          return;
+        }
+      }),
+    ).subscribe();
+
+    this.port.on('error', this.handleError);
+    this.error$.pipe(
+      tap(err => {
+        this.status.error = true;
+        // tslint:disable-next-line: no-console
+        console.log('Modem error:', err);
+
+      }),
+      // logs err
+      tap(err => this.log$.next(err))
+    ).subscribe();
 
     this.port.on('open', () => {
       this.status.connected = true;
@@ -141,7 +142,7 @@ export class Modem {
             expectedResult: '+CMGR:',
             fn: () => this.port.write(`AT+CMGR=${+data.split(',')[1]}\r`, this.handleError),
             id: this.generateTaskID(),
-            onResultFn: x => null,
+            onResultFn: x => null
           });
           this.nextTaskExecute();
         }
@@ -191,10 +192,10 @@ export class Modem {
           expectedResult: 'OK',
           fn: () => this.port.write(`AT+CMGD=${id}\r`, this.handleError),
           id: this.generateTaskID(),
-          onResultFn: x => null,
+          onResultFn: x => null
         });
         this.nextTaskExecute();
-      }),
+      })
     );
   }
 
@@ -212,7 +213,7 @@ export class Modem {
         }, this.msPause);
       },
       id: this.generateTaskID(),
-      onResultFn: x => null,
+      onResultFn: x => null
     });
     this.addTask({
       description: `${text}\x1A`,
@@ -221,7 +222,7 @@ export class Modem {
       id: this.generateTaskID(),
       onResultFn: receivedData => {
         smsInfo$.next(receivedData);
-      },
+      }
     });
 
     this.nextTaskExecute();
@@ -257,7 +258,7 @@ export class Modem {
         // report = { firstOctet: 6, id: 238, phoneNumber: 910000000, submitTime: "2019-12-21T00:04:39.000Z", deliveryTime: "2019-12-21T00:04:41.000Z", 0 }
         return report;
       }),
-      takeWhile(({ st }) => st !== 0, true),
+      takeWhile(({ st }) => st !== 0, true)
     );
   }
 
@@ -286,7 +287,7 @@ export class Modem {
         expectedResult: 'OK',
         fn: () => this.port.write(`${command}\r`, this.handleError),
         id: this.generateTaskID(),
-        onResultFn: x => null,
+        onResultFn: x => null
       });
     });
 
