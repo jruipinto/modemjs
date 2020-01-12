@@ -238,13 +238,13 @@ export class Modem {
 
       // convert +CDS string to DeliveredSMSReport object
       map(data => {
-        // data = '+CDS: 6,238,"910138725",129,"19/12/21,00:04:39+00","19/12/21,00:04:41+00",0'
+        // data = '+CDS: 6,238,"910000000",129,"19/12/21,00:04:39+00","19/12/21,00:04:41+00",0'
         const cds = data
           .replace(/\+CDS\:\ /gi, '')
           .replace(/\"/gi, '')
           .replace(/\//gi, '-')
           .split(',');
-        // cds = '6,238,910138725,129,19-12-21,00:04:39+00,19-12-21,00:04:41+00,0'
+        // cds = '6,238,910000000,129,19-12-21,00:04:39+00,19-12-21,00:04:41+00,0'
         const today = new Date();
         const report: DeliveredSMSReport = {
           deliveryTime: new Date(today.getFullYear() + cds[6].slice(2) + 'T' + cds[7].replace('+', '.000+') + ':00'),
@@ -254,7 +254,7 @@ export class Modem {
           st: +cds[8],
           submitTime: new Date(today.getFullYear() + cds[4].slice(2) + 'T' + cds[5].replace('+', '.000+') + ':00'),
         };
-        // report = { firstOctet: 6, id: 238, phoneNumber: 910138725, submitTime: "2019-12-21T00:04:39.000Z", deliveryTime: "2019-12-21T00:04:41.000Z", 0 }
+        // report = { firstOctet: 6, id: 238, phoneNumber: 910000000, submitTime: "2019-12-21T00:04:39.000Z", deliveryTime: "2019-12-21T00:04:41.000Z", 0 }
         return report;
       }),
       takeWhile(({ st }) => st !== 0, true),
