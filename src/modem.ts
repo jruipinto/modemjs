@@ -39,6 +39,7 @@ export class Modem {
     this.port.on('close', ({ disconnected }) => {
       if (disconnected) {
         this.status.connected = false;
+        this.status.error = true;
       }
     });
 
