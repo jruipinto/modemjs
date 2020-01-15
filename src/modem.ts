@@ -15,18 +15,19 @@ const defaultModemInitCommands = [
 
 export class Modem {
   public log$: Subject<string> = new Subject();
+  public status = {
+    connected: false,
+    debugMode: false,
+    error: false
+  };
 
   private currentTask: ModemTask | null = null;
   private taskStack: ModemTask[] = [];
   private tasksCounter = 0;
 
   private port: SerialPort;
-  private status = {
-    connected: false,
-    debugMode: false,
-    error: false
-  };
   private msPause: number;
+  private initCommands: string[];
 
   private data$: Subject<string> = new Subject();
   private error$: Subject<string> = new Subject();
@@ -35,6 +36,7 @@ export class Modem {
     this.port = new SerialPort(modemCfg.port, { baudRate: modemCfg.baudRate, autoOpen: false });
     this.status.debugMode = modemCfg.debugMode ? true : false;
     this.msPause = modemCfg.msPause;
+    this.initCommands = modemCfg.initCommands;
 
     this.port.on('close', ({ disconnected }) => {
       if (disconnected) {
@@ -122,8 +124,28 @@ export class Modem {
     });
 
     // init modem
-    this.init(modemCfg.initCommands, errorCallback)
+    if (typeof modemCfg.autoOpen === 'undefined' || modemCfg.autoOpen === true) {
+      this.init(errorCallback);
+    }
 
+  }
+
+  public init(errorCallback?: (err: any) => void) {
+    const modemInitComands = this.initCommands || defaultModemInitCommands;
+    this.port.open(this.handleError);
+
+    // init modem
+    modemInitComands.forEach(command => {
+      this.addTask({
+        description: command,
+        expectedResult: 'OK',
+        fn: () => this.port.write(`${command}\r`, this.handleError),
+        id: this.generateTaskID(),
+        onResultFn: x => null
+      });
+    });
+
+    this.nextTaskExecute();
   }
 
   public onReceivedSMS(): Observable<ReceivedSMS> {
@@ -275,24 +297,6 @@ export class Modem {
     if (err) {
       this.error$.next(clone(err));
     }
-  }
-
-  private init(initCommands?: string[], errorCallback?: (err: any) => void) {
-    const modemInitComands = initCommands || defaultModemInitCommands;
-    this.port.open(this.handleError);
-
-    // init modem
-    modemInitComands.forEach(command => {
-      this.addTask({
-        description: command,
-        expectedResult: 'OK',
-        fn: () => this.port.write(`${command}\r`, this.handleError),
-        id: this.generateTaskID(),
-        onResultFn: x => null
-      });
-    });
-
-    this.nextTaskExecute();
   }
 
   private nextTaskExecute() {

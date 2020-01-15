@@ -7,4 +7,5 @@ export interface ModemConfig {
   debugMode?: boolean /** logs every message from modem for debugging / developping purposes */;
   initCommands: string[] /** AT commands to configure modem before starting */;
   msPause: number /** number of mili-seconds that program should wait before sending SMS to avoid losing status reports of earlier SMS's */;
+  autoOpen?: boolean /** defines if modem port should be open automatically on class declaration */
 }
