@@ -1,6 +1,6 @@
 {
   "name": "modemjs",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "NPM package to simplify sending and receiving SMS with a GSM Modem on Node.js",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
