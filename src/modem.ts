@@ -320,7 +320,7 @@ export class Modem {
   }
 
   private updateStatus(patch: Partial<ModemStatus>) {
-    this.status$.subscribe(status => {
+    this.status$.pipe(take(1)).subscribe(status => {
       this.status$.next({ ...status, ...patch });
     });
   }
