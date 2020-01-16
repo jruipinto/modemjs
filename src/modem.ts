@@ -2,7 +2,7 @@ import { clone } from 'ramda';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { concatMap, filter, map, take, takeWhile, tap } from 'rxjs/operators';
 import SerialPort from 'serialport';
-import { DeliveredSMSReport, ModemConfig, ModemTask, ReceivedSMS, SMS } from './models';
+import { DeliveredSMSReport, ModemConfig, ModemStatus, ModemTask, ReceivedSMS, SMS } from './models';
 // tslint:disable-next-line: no-var-requires
 const Readline = require('@serialport/parser-readline');
 
@@ -15,11 +15,11 @@ const defaultModemInitCommands = [
 
 export class Modem {
   public log$: Subject<string> = new Subject();
-  public status = {
+  public status$: BehaviorSubject<any> = new BehaviorSubject({
     connected: false,
     debugMode: false,
     error: false
-  };
+  });
 
   private currentTask: ModemTask | null = null;
   private taskStack: ModemTask[] = [];
@@ -34,14 +34,14 @@ export class Modem {
 
   constructor(modemCfg: ModemConfig, errorCallback?: (err: any) => void) {
     this.port = new SerialPort(modemCfg.port, { baudRate: modemCfg.baudRate, autoOpen: false });
-    this.status.debugMode = modemCfg.debugMode ? true : false;
+    this.updateStatus({ debugMode: modemCfg.debugMode ? true : false });
     this.msPause = modemCfg.msPause;
     this.initCommands = modemCfg.initCommands;
 
-    this.port.on('close', ({ disconnected }) => {
-      if (disconnected) {
-        this.status.connected = false;
-        this.status.error = true;
+    this.port.on('close', err => {
+      if (err.disconected === true) {
+        this.updateStatus({ connected: false, error: true });
+        this.error$.next('Error: Modem disconected')
       }
     });
 
@@ -65,20 +65,22 @@ export class Modem {
       }),
 
       tap(receivedData => {
-        if (this.status.debugMode) {
-          // tslint:disable-next-line: no-console
-          console.log('\r\n\r\n------------------modem says-------------------------');
-          // tslint:disable-next-line: no-console
-          console.log(
-            receivedData
-              .replace('\r', '<CR>')
-              .replace('\n', '<LF>')
-              .replace('\x1b', '<ESC>')
-              .replace('\x1A', '<CTRL-Z>')
-          );
-          // tslint:disable-next-line: no-console
-          console.log('\r\n');
-        }
+        this.status$.subscribe(status => {
+          if (status.debugMode) {
+            // tslint:disable-next-line: no-console
+            console.log('\r\n\r\n------------------modem says-------------------------');
+            // tslint:disable-next-line: no-console
+            console.log(
+              receivedData
+                .replace('\r', '<CR>')
+                .replace('\n', '<LF>')
+                .replace('\x1b', '<ESC>')
+                .replace('\x1A', '<CTRL-Z>')
+            );
+            // tslint:disable-next-line: no-console
+            console.log('\r\n');
+          }
+        });
       }),
 
       // verify modem answer, remove currentTask and start nextTaskExecute()
@@ -110,7 +112,7 @@ export class Modem {
     this.port.on('error', this.handleError);
     this.error$.pipe(
       tap(err => {
-        this.status.error = true;
+        this.updateStatus({ error: true });
         // tslint:disable-next-line: no-console
         console.log('Modem error:', err);
 
@@ -120,7 +122,7 @@ export class Modem {
     ).subscribe();
 
     this.port.on('open', () => {
-      this.status.connected = true;
+      this.updateStatus({ connected: true });
     });
 
     // init modem
@@ -309,5 +311,11 @@ export class Modem {
     this.currentTask = clone(this.taskStack[0]);
     this.taskStack = clone(this.taskStack.slice(1));
     this.currentTask.fn();
+  }
+
+  private updateStatus(patch: Partial<ModemStatus>) {
+    this.status$.subscribe(status => {
+      this.status$.next({ ...status, ...patch });
+    })
   }
 }
