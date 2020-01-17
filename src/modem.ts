@@ -42,10 +42,12 @@ export class Modem {
     this.msPause = modemCfg.msPause;
     this.initCommands = modemCfg.initCommands;
 
-    this.port.on('close', err => {
-      if (err.disconected === true) {
+    this.port.on('close', ({ disconnected }) => {
+      if (disconnected) {
         this.updateStatus({ connected: false, error: true });
-        this.error$.next('Error: Modem disconected');
+        this.error$.next('Error: Modem disconnected');
+        // tslint:disable-next-line: no-console
+        console.log('Error: Modem disconnected');
       }
     });
 
@@ -128,7 +130,14 @@ export class Modem {
       )
       .subscribe();
 
-    this.port.on('open', () => {
+    this.port.on('open', err => {
+      if (err) {
+        // tslint:disable-next-line: no-console
+        console.log(err);
+        this.error$.next(err);
+        this.updateStatus({ connected: false, error: true });
+        return;
+      }
       this.updateStatus({ connected: true });
     });
 
@@ -140,7 +149,7 @@ export class Modem {
 
   public init(errorCallback?: (err: any) => void) {
     const modemInitComands = this.initCommands || defaultModemInitCommands;
-    this.port.open(this.handleError);
+    this.port.open(errorCallback);
 
     // init modem
     modemInitComands.forEach(command => {
