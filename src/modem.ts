@@ -19,11 +19,11 @@ const defaultModemInitCommands = [
 
 export class Modem {
   public log$: Subject<string> = new Subject();
-  public status$: BehaviorSubject<any> = new BehaviorSubject({
+  public status$: BehaviorSubject<ModemStatus> = new BehaviorSubject({
     connected: false,
     debugMode: false,
-    error: false,
-  });
+    error: false
+  } as ModemStatus);
 
   private currentTask: ModemTask | null = null;
   private taskStack: ModemTask[] = [];
@@ -45,9 +45,7 @@ export class Modem {
     this.port.on('close', ({ disconnected }) => {
       if (disconnected) {
         this.updateStatus({ connected: false, error: true });
-        this.error$.next('Error: Modem disconnected');
-        // tslint:disable-next-line: no-console
-        console.log('Error: Modem disconnected');
+        this.error$.next('Modem disconnected');
       }
     });
 
@@ -132,8 +130,6 @@ export class Modem {
 
     this.port.on('open', err => {
       if (err) {
-        // tslint:disable-next-line: no-console
-        console.log(err);
         this.error$.next(err);
         this.updateStatus({ connected: false, error: true });
         return;
