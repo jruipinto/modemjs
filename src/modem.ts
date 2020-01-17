@@ -22,7 +22,7 @@ export class Modem {
   public status$: BehaviorSubject<ModemStatus> = new BehaviorSubject({
     connected: false,
     debugMode: false,
-    error: false
+    error: false,
   } as ModemStatus);
 
   private currentTask: ModemTask | null = null;
