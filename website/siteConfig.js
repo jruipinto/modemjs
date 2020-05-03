@@ -106,7 +106,7 @@ const siteConfig = {
   // template. For example, if you need your repo's URL...
   //   repoUrl: 'https://github.com/facebook/test-site',
 
-  customDocsPath: 'website/docs'
+  // customDocsPath: 'docs'
 };
 
 module.exports = siteConfig;

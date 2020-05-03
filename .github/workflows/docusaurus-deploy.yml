@@ -1,0 +1,32 @@
+name: Docusaurus deploy to gh-pages
+
+on:
+  push:
+    branches: [ docusaurus ]
+  pull_request:
+    branches: [ docusaurus ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci --prefix website
+    - run: npm run --prefix website build --if-present
+
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BRANCH: gh-pages # The branch the action should deploy to.
+        FOLDER: website/build/modemjs # The folder the action should deploy.
