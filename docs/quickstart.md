@@ -19,13 +19,12 @@ const Modem = require('modemjs').Modem; // if you prefer to use the standard nod
 const modem = new Modem({
     port: 'COM10', // change this 
     baudRate: 230400, // change this
-    initCommands: [
+    initCommands: [ // optional
         '\u241bAT', 'AT+CMGF=1', 'AT+CNMI=1,1,0,1,0',
         'AT+CNMI=2', 'AT+CSMP=49,167,0,0', 'AT+CPMS=\"SM\",\"SM\",\"SM\"'
     ],
     msPause: 10000
 });
-// this config is necessary but will be simplified soon, in the next updates of modem.js
 // PS: the msPause of 10000ms is recommended by now to avoid
 //  missed delivery reports but you are free to try smaller periods
 
