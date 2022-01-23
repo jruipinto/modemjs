@@ -79,7 +79,7 @@ export class Modem {
         expectedResult: 'OK',
         fn: () => this.sendCommand(`${command}\r`),
         id: this.generateTaskID(),
-        onResultFn: x => null,
+        onResultFn: () => null,
       });
     });
 
@@ -99,9 +99,9 @@ export class Modem {
         if (data.includes('+CMTI:')) {
           newSMS.id = +data.split(',')[1];
           this.addTask({
-            description: `AT+CMGR=${+data.split(',')[1]}`,
+            description: `AT+CMGR=${newSMS.id}`,
             expectedResult: '+CMGR:',
-            fn: () => this.sendCommand(`AT+CMGR=${+data.split(',')[1]}\r`),
+            fn: () => this.sendCommand(`AT+CMGR=${newSMS.id}\r`),
             id: this.generateTaskID(),
             onResultFn: () => null,
           });
@@ -119,23 +119,22 @@ export class Modem {
       }),
       map(data => {
         if (data.includes('OK')) {
-          newSMS.text = newSMS.text ? newSMS.text.trim() : '';
+          newSMS.text = newSMS.text?.trim() ?? '';
           return newSMS;
         }
         if (data.includes('+CMGR:')) {
           const today = new Date();
-          const cmgr = data
-            .replace(/\+CMGR\:\ /gi, '')
-            .replace(/\"/gi, '')
+          const [, phoneNumber, , submitDate, submitHour] = data
+            .replace(/\+CMGR\:\ |\"/gi, '')
             .replace(/\//gi, '-')
             .split(',');
-          newSMS.phoneNumber = +cmgr[1].replace('+', '00').replace(/00351/, '');
+          newSMS.phoneNumber = +phoneNumber.replace('+', '00').replace(/00351/, '');
           newSMS.submitTime = new Date(
-            today.getFullYear() + cmgr[3].slice(2) + 'T' + cmgr[4].replace('+', '.000+') + ':00',
+            `${today.getFullYear()}${submitDate.slice(2)}T${submitHour.replace('+', '.000+')}:00`,
           );
           return null;
         }
-        newSMS.text = newSMS.text ? newSMS.text + data : data;
+        newSMS.text += data;
         return null;
       }),
       filter(notNull),
@@ -153,7 +152,7 @@ export class Modem {
           expectedResult: 'OK',
           fn: () => this.sendCommand(`AT+CMGD=${id}\r`),
           id: this.generateTaskID(),
-          onResultFn: x => null,
+          onResultFn: () => null,
         });
         this.nextTaskExecute();
       }),
@@ -192,29 +191,30 @@ export class Modem {
       filter(notNull),
       filter(data => data.includes('+CMGS:')),
       tap(data => {
-        cmgsNumber = parseInt(data.split(':')[1], 10);
+        cmgsNumber = +data.split(':')[1];
       }),
       concatMap(() => this.data$),
       filter(data => data.includes('+CDS:')),
-      filter(data => parseInt(data.split(',')[1], 10) === cmgsNumber),
+      filter(data => +data.split(',')[1] === cmgsNumber),
 
       // convert +CDS string to DeliveredSMSReport object
       map(data => {
         // data = '+CDS: 6,238,"910000000",129,"19/12/21,00:04:39+00","19/12/21,00:04:41+00",0'
-        const cds = data
-          .replace(/\+CDS\:\ /gi, '')
-          .replace(/\"/gi, '')
+        const [firstOctet, id, phoneNumber, , submitDate, submitHour, deliveryDate, deliveryHour, st] = data
+          .replace(/\+CDS\:\ |\"/gi, '')
           .replace(/\//gi, '-')
           .split(',');
         // cds = '6,238,910000000,129,19-12-21,00:04:39+00,19-12-21,00:04:41+00,0'
         const today = new Date();
         const report: DeliveredSMSReport = {
-          deliveryTime: new Date(today.getFullYear() + cds[6].slice(2) + 'T' + cds[7].replace('+', '.000+') + ':00'),
-          firstOctet: +cds[0],
-          id: +cds[1],
-          phoneNumber: +cds[2],
-          st: +cds[8],
-          submitTime: new Date(today.getFullYear() + cds[4].slice(2) + 'T' + cds[5].replace('+', '.000+') + ':00'),
+          deliveryTime: new Date(
+            `${today.getFullYear()}${deliveryDate.slice(2)}T${deliveryHour.replace('+', '.000+')}:00`,
+          ),
+          firstOctet: +firstOctet,
+          id: +id,
+          phoneNumber: +phoneNumber,
+          st: +st,
+          submitTime: new Date(`${today.getFullYear()}${submitDate.slice(2)}T${submitHour.replace('+', '.000+')}:00`),
         };
         // report = { firstOctet: 6, id: 238, phoneNumber: 910000000, submitTime: "2019-12-21T00:04:39.000Z", deliveryTime: "2019-12-21T00:04:41.000Z", 0 }
         return report;
@@ -236,7 +236,7 @@ export class Modem {
     if (this.currentTaskRunning) {
       return;
     }
-    if (!this.taskQueue[0]) {
+    if (!this.taskQueue.length) {
       return;
     }
     this.currentTaskRunning = clone(this.taskQueue[0]);
