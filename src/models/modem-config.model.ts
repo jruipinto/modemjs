@@ -1,11 +1,21 @@
+/** The Modem settings */
 export interface ModemConfig {
-  port: string /** Modem's serialport (example COM1 or dev/ttys0) */;
-  baudRate: number /** Modem serialport baudrate */;
-  pin?: number | null /** not implemented yet */;
-  smsMode?: boolean /** not implemented yet (true = text; false = pdu) */;
-  extendedErrorReports?: boolean /** not implemented yet */;
-  debugMode?: boolean /** logs every message from modem for debugging / developping purposes */;
-  initCommands: string[] /** AT commands to configure modem before starting */;
-  msPause: number /** number of mili-seconds that program should wait before sending SMS to avoid losing status reports of earlier SMS's */;
-  autoOpen?: boolean /** defines if modem port should be open automatically on class declaration */;
+  /** Modem's serialport (example COM1 or dev/ttys0) */
+  portName: string;
+  /** Modem serialport baudrate */
+  baudRate: number;
+  /** not implemented yet */
+  pin?: number;
+  /** not implemented yet (true = text; false = pdu) default is true */
+  isSMSMode?: boolean;
+  /** not implemented yet */
+  shouldProvideExtendedErrorReports?: boolean;
+  /** logs every message from modem for debugging / developping purposes */
+  isInDebugMode?: boolean;
+  /** AT commands to configure modem before starting */
+  initCommands: string[];
+  /** number of mili-seconds that program should wait before sending SMS to avoid losing status reports of earlier SMS's */
+  msPause: number;
+  /** defines if modem port should be open automatically on class declaration */
+  shouldAutoOpen?: boolean;
 }

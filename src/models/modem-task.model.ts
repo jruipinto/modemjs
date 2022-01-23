@@ -1,9 +1,18 @@
+/**
+ * Task to be executed by modem.
+ * A task holds all info about what needs to be done, i.e.
+ * description, the expected result, how to define if the
+ * task is finished and what to do on finish
+ */
 export interface ModemTask {
-  id: number /** index number of task  */;
-  description?: string /** optional description of the task to help debug */;
-  fn: () => void /** function to be executed by this task */;
-  expectedResult: 'OK' | '+CMGS:' | '\r' | string /** expected answer from modem after executing function */;
-  onResultFn: (
-    receivedData: string,
-  ) => void /** function to be executed on receiving the modem answer for this task function */;
+  /** index number of task  */
+  id: number;
+  /** optional description of the task to help debug */
+  description?: string;
+  /** function to be executed by this task */
+  fn: () => void;
+  /** expected answer from modem after executing function */
+  expectedResult: 'OK' | '+CMGS:' | '\r' | string;
+  /** function to be executed on receiving the expectedResult for this task */
+  onResultFn: (receivedData: string) => void;
 }
